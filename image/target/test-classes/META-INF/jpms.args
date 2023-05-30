@@ -1,0 +1,4 @@
+--patch-module
+com.penguin.image=_
+--add-reads
+com.penguin.image=ALL-UNNAMED
