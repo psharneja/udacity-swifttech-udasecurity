@@ -1,4 +1,0 @@
---patch-module
-com.penguin.security=_
---add-reads
-com.penguin.security=ALL-UNNAMED
