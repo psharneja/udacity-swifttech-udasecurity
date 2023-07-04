@@ -1,6 +1,7 @@
 package com.penguin.security.service;
 
 import com.penguin.image.service.FakeImageService;
+import com.penguin.image.service.ImageService;
 import com.penguin.security.application.StatusListener;
 import com.penguin.security.data.AlarmStatus;
 import com.penguin.security.data.ArmingStatus;
@@ -20,11 +21,11 @@ import java.util.Set;
  */
 public class SecurityService {
 
-    private FakeImageService imageService;
+    private ImageService imageService;
     private SecurityRepository securityRepository;
     private Set<StatusListener> statusListeners = new HashSet<>();
 
-    public SecurityService(SecurityRepository securityRepository, FakeImageService imageService) {
+    public SecurityService(SecurityRepository securityRepository, ImageService imageService) {
         this.securityRepository = securityRepository;
         this.imageService = imageService;
     }
@@ -106,12 +107,26 @@ public class SecurityService {
      * @param active
      */
     public void changeSensorActivationStatus(Sensor sensor, Boolean active) {
-        if(!sensor.getActive() && active) {
-            handleSensorActivated();
-        } else if (sensor.getActive() && !active) {
-            handleSensorDeactivated();
+        AlarmStatus alarmStatus = securityRepository.getAlarmStatus();
+
+        if (alarmStatus != AlarmStatus.ALARM) {
+            if (active) {
+                handleSensorActivated();
+            } else if (sensor.getActive()) {
+                handleSensorDeactivated();
+            }
         }
         sensor.setActive(active);
+        securityRepository.updateSensor(sensor);
+    }
+
+    public void changeSensorActivationStatus(Sensor sensor){
+        ArmingStatus armingStatus = this.getArmingStatus();
+        AlarmStatus alarmStatus = this.getAlarmStatus();
+
+        if((alarmStatus == AlarmStatus.PENDING_ALARM && !sensor.getActive()) || (alarmStatus == AlarmStatus.ALARM && armingStatus == ArmingStatus.DISARMED)){
+            handleSensorDeactivated();
+        }
         securityRepository.updateSensor(sensor);
     }
 
