@@ -133,6 +133,28 @@ public class SecurityServiceTest {
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
     }
 
+
+    @Test
+    void setAlarmStatus_whenSensorNotActiveAndSystemArmed_setSensorDeactivated(){
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
+
+        sensor.setActive(true);
+        securityService.changeSensorActivationStatus(sensor, false);
+
+        verify(securityRepository, times(1)).updateSensor(sensor);
+    }
+
+
+    @Test
+    void changeSensorActivationStatus_whenAlarmActiveAndArmingDisarmed_setPendingAlarm(){
+        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
+
+        securityService.changeSensorActivationStatus(sensor);
+
+        verify(securityRepository,times(1)).setAlarmStatus(AlarmStatus.PENDING_ALARM);
+    }
+
     @Test
     void setAlarmStatus_whenSensorInActiveAndAlarmPending_setStatusNoAlarm(){
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
