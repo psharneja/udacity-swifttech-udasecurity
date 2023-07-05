@@ -9,4 +9,5 @@ module com.penguin.security {
     exports com.penguin.security.data;
     exports com.penguin.security.application;
     opens com.penguin.security.service;
+    opens com.penguin.security.data to com.google.gson;
 }
