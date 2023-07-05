@@ -1,6 +1,4 @@
-package com.penguin;
-
-import com.penguin.application.CatpointGui;
+package com.penguin.security.application;
 
 /**
  * This is the main class that launches the application.

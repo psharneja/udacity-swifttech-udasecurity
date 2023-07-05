@@ -1,9 +1,9 @@
-package com.penguin.application;
+package com.penguin.security.application;
 
 import com.penguin.security.data.Sensor;
 import com.penguin.security.data.SensorType;
 import com.penguin.security.service.SecurityService;
-import com.penguin.service.StyleService;
+import com.penguin.security.service.StyleService;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

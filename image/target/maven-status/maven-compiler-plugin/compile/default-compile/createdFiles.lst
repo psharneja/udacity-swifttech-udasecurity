@@ -1,4 +1,0 @@
-com/penguin/image/service/ImageService.class
-module-info.class
-com/penguin/image/service/FakeImageService.class
-com/penguin/image/service/AwsImageService.class

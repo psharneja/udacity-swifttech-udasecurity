@@ -1,4 +1,4 @@
-package com.penguin.service;
+package com.penguin.security.service;
 
 import java.awt.*;
 
