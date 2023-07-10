@@ -1,6 +1,5 @@
 package com.penguin.security.service;
 
-import com.penguin.image.service.FakeImageService;
 import com.penguin.image.service.ImageService;
 import com.penguin.security.application.StatusListener;
 import com.penguin.security.data.AlarmStatus;
@@ -11,6 +10,7 @@ import com.penguin.security.data.Sensor;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Service that receives information about changes to the security system. Responsible for
@@ -25,6 +25,7 @@ public class SecurityService {
     private SecurityRepository securityRepository;
     private Set<StatusListener> statusListeners = new HashSet<>();
 
+    public boolean ifCatDetected = false;
     public SecurityService(SecurityRepository securityRepository, ImageService imageService) {
         this.securityRepository = securityRepository;
         this.imageService = imageService;
@@ -38,8 +39,16 @@ public class SecurityService {
     public void setArmingStatus(ArmingStatus armingStatus) {
         if(armingStatus == ArmingStatus.DISARMED) {
             setAlarmStatus(AlarmStatus.NO_ALARM);
+        } else {
+            ConcurrentSkipListSet<Sensor> sensor = new ConcurrentSkipListSet<>(getSensors());
+            sensor.forEach(i -> changeSensorActivationStatus(i, false));
+        }
+
+        if(armingStatus == ArmingStatus.ARMED_HOME && ifCatDetected){
+            setAlarmStatus(AlarmStatus.ALARM);
         }
         securityRepository.setArmingStatus(armingStatus);
+        statusListeners.forEach(StatusListener::sensorStatusChanged);
     }
 
     /**
@@ -50,11 +59,16 @@ public class SecurityService {
     private void catDetected(Boolean cat) {
         if(cat && getArmingStatus() == ArmingStatus.ARMED_HOME) {
             setAlarmStatus(AlarmStatus.ALARM);
-        } else {
+        } else if(getAllSensors() && !cat){
             setAlarmStatus(AlarmStatus.NO_ALARM);
         }
 
-        statusListeners.forEach(sl -> sl.catDetected(cat));
+        ifCatDetected=cat;
+        statusListeners.forEach(listener -> listener.catDetected(cat));
+    }
+
+    private boolean getAllSensors(){
+        return getSensors().stream().noneMatch(Sensor::getActive);
     }
 
     /**
@@ -75,7 +89,7 @@ public class SecurityService {
      */
     public void setAlarmStatus(AlarmStatus status) {
         securityRepository.setAlarmStatus(status);
-        statusListeners.forEach(sl -> sl.notify(status));
+        statusListeners.forEach(listener -> listener.notify(status));
     }
 
     /**

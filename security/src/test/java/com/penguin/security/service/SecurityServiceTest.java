@@ -192,7 +192,6 @@ public class SecurityServiceTest {
 
     @Test
     void  setAlarmStatus_whenImageServiceFindsNoCat_setStatusNoAlarm() {
-        Set<Sensor> sensors = getSensors(4, false);
 
         when(imageService.imageContainsCat(any(), ArgumentMatchers.anyFloat())).thenReturn(false);
 
@@ -208,5 +207,18 @@ public class SecurityServiceTest {
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
+
+
+//    @Test
+//    void  setAlarmStatus_whenCatDetectedAndArmedHome_setStatusAlarm() {
+//        securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
+//
+//        when(imageService.imageContainsCat(any(), ArgumentMatchers.anyFloat())).thenReturn(true);
+//
+//        securityService.processImage(mock(BufferedImage.class));
+//
+//        verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
+//
+//    }
 
 }
